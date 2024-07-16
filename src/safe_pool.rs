@@ -59,11 +59,3 @@ async fn create(url: &str) -> Result<Pool, Error> {
     let pool = cfg.create_pool(Some(Runtime::Tokio1))?;
     Ok(pool)
 }
-
-
-
-// fn create_cluster_pool(urls: &[String]) -> Result<Pool, Box<dyn std::error::Error>> {
-//     let mut cfg = Config::from_urls(redis_urls);
-//     let pool = cfg.create_pool(Some(Runtime::Tokio1)).unwrap();
-
-// }
