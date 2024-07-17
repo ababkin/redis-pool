@@ -5,7 +5,6 @@ use deadpool_redis::cluster::{Connection, Pool, Config, Runtime};
 
 pub struct SafePool {
     pool: Option<Pool>,
-    url: String,
 }
 
 impl SafePool {
@@ -19,7 +18,6 @@ impl SafePool {
 
                 SafePool {
                     pool: Some(pool),
-                    url,
                 }
             },
             Err(e) => {
