@@ -1,24 +1,23 @@
 use anyhow::{Error, Result};
-use tokio::sync::Mutex;
+use tokio::sync::RwLock;
 use tracing::{debug, error, warn};
 use deadpool_redis::cluster::{Connection, Pool, Config, Runtime};
 
-
 pub struct SafePool {
-    pool: Mutex<Option<Pool>>,
+    pool: RwLock<Option<Pool>>,
     url: String,
 }
 
 impl SafePool {
     pub fn new(url: String) -> SafePool {
         SafePool {
-            pool: Mutex::new(None),
+            pool: RwLock::new(None),
             url,
         }
     }
 
     pub async fn invalidate(&self) {
-        let mut lock = self.pool.lock().await;
+        let mut lock = self.pool.write().await;
         *lock = None;
     }
 
@@ -27,7 +26,7 @@ impl SafePool {
             debug!("Trying to connect to Redis...");
             match create(&self.url).await {
                 Ok(pool) => {
-                    let mut locked = self.pool.lock().await;
+                    let mut locked = self.pool.write().await;
                     *locked = Some(pool);
                     debug!("Connected to Redis.");
                     break;
@@ -43,9 +42,9 @@ impl SafePool {
     pub async fn get(&self) -> Result<Connection, Error> {
         loop {
             {
-                let lock = self.pool.lock().await;
+                let lock = self.pool.read().await;
                 if let Some(pool) = &*lock {
-                    return Ok(pool.get().await?)
+                    return Ok(pool.get().await?);
                 }
             }
             warn!("Redis connection lost, attempting to reconnect...");
