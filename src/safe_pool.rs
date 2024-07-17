@@ -8,10 +8,10 @@ pub struct SafePool {
 }
 
 impl SafePool {
-    pub fn new(url: String) -> SafePool {
+    pub fn new(urls: Vec<String>) -> SafePool {
 
 
-        match create(&url) {
+        match create(urls) {
             Ok(pool) => {
 
                 debug!("Connected to Redis.");
@@ -53,7 +53,7 @@ impl SafePool {
         // }
     }
 
-    #[instrument(skip(self))]
+    #[instrument(name = "get_connection", skip(self))]
     pub async fn get(&self) -> Result<Connection, Error> {
         // loop {
         //     {
@@ -66,12 +66,19 @@ impl SafePool {
         //     self.ensure().await;
         // }
 
-        Ok(self.pool.clone().unwrap().get().await?)
+        Ok(self.pool.as_ref().unwrap().get().await?)
     }
 }
 
-fn create(url: &str) -> Result<Pool, Error> {
-    let cfg = Config::from_urls(vec![url.to_string()]);
-    let pool = cfg.create_pool(Some(Runtime::Tokio1))?;
+fn create(urls: Vec<String>) -> Result<Pool, Error> {
+    // let cfg = Config::from_urls(vec![url.to_string()]);
+    // let pool = cfg.create_pool(Some(Runtime::Tokio1))?;
+
+    let manager = deadpool_redis::cluster::Manager::new(urls)?;
+    let pool = deadpool_redis::cluster::Pool::builder(manager)
+        .max_size(64)  // Adjust pool size according to your needs
+        .build()
+        .unwrap();
+
     Ok(pool)
 }

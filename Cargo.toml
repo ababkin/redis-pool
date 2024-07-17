@@ -9,7 +9,7 @@ chrono = { version = "0.4.37", features = ["serde"] }
 deadpool = "0.12"
 deadpool-redis = { version = "0.15", features = ["cluster"] }
 dotenv = "0.15"
-redis = { version = "0.25.3", features = ["tokio-native-tls-comp", "cluster-async"] }
+redis = { version = "0.25", features = ["tokio-native-tls-comp", "cluster-async"] }
 tokio = { version = "1.37.0", features = ["full"] }
 tracing = { version = "0.1.40" }
 tracing-subscriber = "0.3.18" 
