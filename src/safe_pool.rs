@@ -51,10 +51,10 @@ pub struct SafePool {
 }
 
 impl SafePool {
-    pub fn new(urls: Vec<String>, mode: RedisMode) -> SafePool {
+    pub fn new(urls: Vec<String>, mode: RedisMode, pool_size: usize) -> SafePool {
         let pool = match mode {
             RedisMode::Cluster => {
-                match create_cluster_pool(urls) {
+                match create_cluster_pool(urls, pool_size) {
                     Ok(pool) => {
                         debug!("Connected to Redis Cluster.");
                         RedisPool::Cluster(pool)
@@ -67,7 +67,7 @@ impl SafePool {
                 }
             }
             RedisMode::NonCluster => {
-                match create_non_cluster_pool(urls) {
+                match create_non_cluster_pool(urls, pool_size) {
                     Ok(pool) => {
                         debug!("Connected to Redis Non-Cluster.");
                         RedisPool::NonCluster(pool)
@@ -97,20 +97,20 @@ impl SafePool {
     }
 }
 
-fn create_cluster_pool(urls: Vec<String>) -> Result<ClusterPool, Error> {
+fn create_cluster_pool(urls: Vec<String>, pool_size: usize) -> Result<ClusterPool, Error> {
     let manager = ClusterManager::new(urls)?;
     let pool = ClusterPool::builder(manager)
-        .max_size(64)  // Adjust pool size according to your needs
+        .max_size(pool_size)  // Adjust pool size according to your needs
         .build()
         .unwrap();
     Ok(pool)
 }
 
-fn create_non_cluster_pool(urls: Vec<String>) -> Result<NonClusterPool, Error> {
+fn create_non_cluster_pool(urls: Vec<String>, pool_size: usize) -> Result<NonClusterPool, Error> {
     let url = urls.first().ok_or_else(|| Error::msg("No URL provided"))?;
     let manager = NonClusterManager::new(url.to_string())?;
     let pool = NonClusterPool::builder(manager)
-        .max_size(64)  // Adjust pool size according to your needs
+        .max_size(pool_size)  // Adjust pool size according to your needs
         .build()
         .unwrap();
     Ok(pool)
