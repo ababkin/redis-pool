@@ -102,7 +102,7 @@ fn create_cluster_pool(urls: Vec<String>, pool_size: usize) -> Result<ClusterPoo
     let pool = ClusterPool::builder(manager)
         .max_size(pool_size)  // Adjust pool size according to your needs
         .build()
-        .unwrap();
+        .expect("must be able to create cluster pool");
     Ok(pool)
 }
 
@@ -112,6 +112,6 @@ fn create_non_cluster_pool(urls: Vec<String>, pool_size: usize) -> Result<NonClu
     let pool = NonClusterPool::builder(manager)
         .max_size(pool_size)  // Adjust pool size according to your needs
         .build()
-        .unwrap();
+        .expect("must be able to create non-cluster pool");
     Ok(pool)
 }
