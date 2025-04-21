@@ -1,9 +1,9 @@
 use anyhow::{Error, Result};
 use tracing::{debug, error, instrument};
-use deadpool_redis::{Connection as NonClusterConnection, Pool as NonClusterPool, Config as NonClusterConfig, Manager as NonClusterManager};
+use deadpool_redis::{Connection as NonClusterConnection, Pool as NonClusterPool, Manager as NonClusterManager};
 use deadpool_redis::cluster::{Connection as ClusterConnection, Pool as ClusterPool, Manager as ClusterManager};
 use redis::aio::ConnectionLike;
-use redis::{RedisFuture, Cmd, ErrorKind};
+use redis::{RedisFuture, Cmd};
 use redis::Pipeline;
 
 
